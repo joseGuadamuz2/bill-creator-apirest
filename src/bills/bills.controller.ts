@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, Res, NotFoundException,  } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { Response } from 'express';
 import { BillsService } from './bills.service';
@@ -36,22 +36,27 @@ export class BillsController {
   }
 
   @Get(':id/pdf')
-  @ApiOperation({ summary: 'Descargar factura en PDF' })
-  @ApiParam({ name: 'id', type: 'number' })
-  @ApiResponse({ status: 200, description: 'PDF generado exitosamente' })
-  @ApiResponse({ status: 404, description: 'Factura no encontrada' })
-  async downloadPdf(@Param('id') id: string, @Res() res: Response) {
-    const bill = await this.billsService.findOne(+id);
-    const pdfBuffer = await this.pdfService.generateBillPdf(bill);
+@ApiOperation({ summary: 'Descargar factura en PDF' })
+@ApiParam({ name: 'id', type: 'number' })
+@ApiResponse({ status: 200, description: 'PDF generado exitosamente' })
+@ApiResponse({ status: 404, description: 'Factura no encontrada' })
+async downloadPdf(@Param('id') id: string, @Res() res: Response) {
+  const bill = await this.billsService.findOne(+id);
 
-    res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="factura-${bill.billNumber}.pdf"`,
-      'Content-Length': pdfBuffer.length,
-    });
-
-    res.end(pdfBuffer);
+  if (!bill) {
+    throw new NotFoundException('Factura no encontrada');
   }
+
+  const pdfBuffer = await this.pdfService.generateBillPdf(bill);
+
+  res.set({
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': `attachment; filename="factura-${bill.billNumber}.pdf"`,
+    'Content-Length': pdfBuffer.length,
+  });
+
+  res.end(pdfBuffer);
+}
 
   @Delete(':id')
   @ApiOperation({ summary: 'Anular una factura (borrado lógico)' })
