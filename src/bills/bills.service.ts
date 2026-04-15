@@ -6,7 +6,6 @@ import { BillDetail } from './bill-detail.entity';
 import { CreateBillDto } from './dto/create-bill.dto';
 import { ProductsService } from '../products/products.service';
 
-
 @Injectable()
 export class BillsService {
   constructor(
@@ -19,8 +18,7 @@ export class BillsService {
     private productsService: ProductsService,
   ) {}
 
-  async create(dto: CreateBillDto): Promise<Bill> {
-    // Verificar que el número de factura no exista
+  async create(dto: CreateBillDto, createdBy: string): Promise<Bill> {  // ✅ parámetro agregado
     const existing = await this.billsRepository.findOneBy({ billNumber: dto.billNumber });
     if (existing) {
       throw new ConflictException(`Ya existe una factura con el número ${dto.billNumber}`);
@@ -47,7 +45,7 @@ export class BillsService {
     const bill = this.billsRepository.create({
       billNumber: dto.billNumber,
       clientId: dto.clientId,
-      createdBy: dto.createdBy,
+      createdBy,
       total,
       details,
     });

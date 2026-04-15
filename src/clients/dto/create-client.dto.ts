@@ -21,9 +21,4 @@ export class CreateClientDto {
   @IsOptional()
   @IsString()
   address?: string;
-
-  @ApiProperty({ example: 'admin' })
-  @IsNotEmpty()
-  @IsString()
-  createdBy: string;
 }

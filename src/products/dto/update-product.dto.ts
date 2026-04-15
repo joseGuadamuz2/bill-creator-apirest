@@ -13,8 +13,4 @@ export class UpdateProductDto {
   @Min(0)
   price?: number;
 
-  @ApiPropertyOptional({ example: 'admin' })
-  @IsOptional()
-  @IsString()
-  updatedBy?: string;
 }

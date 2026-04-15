@@ -14,11 +14,6 @@ export class CreateBillDto {
   @IsString()
   billNumber: string;
 
-  @ApiProperty({ example: 'admin' })
-  @IsNotEmpty()
-  @IsString()
-  createdBy: string;
-
   @ApiProperty({ type: [CreateBillDetailDto] })
   @IsArray()
   @ValidateNested({ each: true })
