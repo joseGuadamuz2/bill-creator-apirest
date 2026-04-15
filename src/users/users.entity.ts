@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, OneToMany } from 'typeorm';
 import { BaseEntity } from '../common/base.entity';
 import * as bcrypt from 'bcrypt';
 
@@ -15,6 +15,19 @@ export class User extends BaseEntity {
 
   @Column({ nullable: true })
   name: string;
+
+  // Datos para impresión personalizada en PDF
+  @Column({ nullable: true })
+  businessName: string;
+
+  @Column({ nullable: true })
+  businessPhone: string;
+
+  @Column({ nullable: true })
+  businessAddress: string;
+
+  @Column({ nullable: true })
+  businessEmail: string;
 
   @BeforeInsert()
   async hashPassword() {

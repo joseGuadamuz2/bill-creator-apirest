@@ -2,6 +2,7 @@ import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './users.entity';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -23,14 +24,15 @@ export class UsersService {
     if (existing) {
       throw new ConflictException('El email ya está registrado');
     }
-
-    const user = this.usersRepository.create({
-      email,
-      password,
-      name,
-      createdBy: email,
-    });
-
+    const user = this.usersRepository.create({ email, password, name, createdBy: email });
     return this.usersRepository.save(user);
+  }
+
+  async updateProfile(id: number, dto: UpdateProfileDto): Promise<Omit<User, 'password' | 'hashPassword'>> {
+    const user = await this.findById(id);
+    Object.assign(user, dto);
+    const saved = await this.usersRepository.save(user);
+    const { password, hashPassword, ...result } = saved;
+    return result;
   }
 }

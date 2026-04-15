@@ -2,14 +2,22 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColum
 import { BaseEntity } from '../common/base.entity';
 import { Client } from '../clients/client.entity';
 import { BillDetail } from './bill-detail.entity';
+import { User } from '../users/users.entity';
 
 @Entity('bills')
 export class Bill extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
-  billNumber: string;
+  @Column()
+  billNumber: string;  // unique por usuario, no global
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'userId' })
+  user: User;
+
+  @Column()
+  userId: number;
 
   @ManyToOne(() => Client)
   @JoinColumn({ name: 'clientId' })

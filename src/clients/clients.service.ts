@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Client } from './client.entity';
@@ -12,34 +12,31 @@ export class ClientsService {
     private clientsRepository: Repository<Client>,
   ) {}
 
-  create(dto: CreateClientDto): Promise<Client> {
-    const client = this.clientsRepository.create(dto);
+  create(dto: CreateClientDto, userId: number, createdBy: string): Promise<Client> {
+    const client = this.clientsRepository.create({ ...dto, userId, createdBy });
     return this.clientsRepository.save(client);
   }
 
-  findAll(): Promise<Client[]> {
-    // Solo retorna los activos
-    return this.clientsRepository.findBy({ isActive: true });
+  findAll(userId: number): Promise<Client[]> {
+    return this.clientsRepository.findBy({ isActive: true, userId });
   }
 
-  async findOne(id: number): Promise<Client> {
-    const client = await this.clientsRepository.findOneBy({ id, isActive: true });
+  async findOne(id: number, userId: number): Promise<Client> {
+    const client = await this.clientsRepository.findOneBy({ id, isActive: true, userId });
     if (!client) throw new NotFoundException(`Cliente con id ${id} no encontrado`);
     return client;
   }
 
-  async update(id: number, dto: UpdateClientDto): Promise<Client> {
-    const client = await this.findOne(id);
+  async update(id: number, dto: UpdateClientDto, userId: number): Promise<Client> {
+    const client = await this.findOne(id, userId);
     Object.assign(client, dto);
     return this.clientsRepository.save(client);
   }
 
-  // Borrado lógico — no elimina el registro
-  async remove(id: number, deletedBy: string): Promise<void> {
-    const client = await this.findOne(id);
+  async remove(id: number, userId: number, deletedBy: string): Promise<void> {
+    const client = await this.findOne(id, userId);
     client.isActive = false;
     client.updatedBy = deletedBy;
     await this.clientsRepository.save(client);
   }
 }
-

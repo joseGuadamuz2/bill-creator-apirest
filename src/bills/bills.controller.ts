@@ -1,12 +1,13 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, Res, Req, NotFoundException, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
-import { Response, Request } from 'express';  // ✅ el tipo viene de express
+import { Controller, Get, Post, Body, Param, Delete, Req, Res, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import { Request, Response } from 'express';
 import { BillsService } from './bills.service';
 import { PdfService } from './pdf.service';
 import { CreateBillDto } from './dto/create-bill.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('bills')
+@ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard)
 @Controller('bills')
 export class BillsController {
@@ -17,34 +18,30 @@ export class BillsController {
 
   @Post()
   @ApiOperation({ summary: 'Crear una nueva factura' })
-  @ApiResponse({ status: 201, description: 'Factura creada exitosamente' })
-  @ApiResponse({ status: 404, description: 'Cliente o producto no encontrado' })
+  @ApiResponse({ status: 201 })
   create(@Body() dto: CreateBillDto, @Req() req: Request) {
-    return this.billsService.create(dto, (req.user as any).email); // ✅ createdBy del token
+    const user = req.user as any;
+    return this.billsService.create(dto, user.id, user.email);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Obtener todas las facturas activas' })
-  findAll() {
-    return this.billsService.findAll();
+  @ApiOperation({ summary: 'Obtener mis facturas activas' })
+  findAll(@Req() req: Request) {
+    return this.billsService.findAll((req.user as any).id);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Obtener una factura por ID' })
   @ApiParam({ name: 'id', type: 'number' })
-  @ApiResponse({ status: 404, description: 'Factura no encontrada' })
-  findOne(@Param('id') id: string) {
-    return this.billsService.findOne(+id);
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    return this.billsService.findOne(+id, (req.user as any).id);
   }
 
   @Get(':id/pdf')
   @ApiOperation({ summary: 'Descargar factura en PDF' })
   @ApiParam({ name: 'id', type: 'number' })
-  @ApiResponse({ status: 200, description: 'PDF generado exitosamente' })
-  @ApiResponse({ status: 404, description: 'Factura no encontrada' })
-  async downloadPdf(@Param('id') id: string, @Res() res: Response) {
-    const bill = await this.billsService.findOne(+id);
-
+  async downloadPdf(@Param('id') id: string, @Req() req: Request, @Res() res: Response) {
+    const bill = await this.billsService.findOne(+id, (req.user as any).id);
     const pdfBuffer = await this.pdfService.generateBillPdf(bill);
 
     res.set({
@@ -52,7 +49,6 @@ export class BillsController {
       'Content-Disposition': `attachment; filename="factura-${bill.billNumber}.pdf"`,
       'Content-Length': pdfBuffer.length,
     });
-
     res.end(pdfBuffer);
   }
 
@@ -60,6 +56,7 @@ export class BillsController {
   @ApiOperation({ summary: 'Anular una factura (borrado lógico)' })
   @ApiParam({ name: 'id', type: 'number' })
   remove(@Param('id') id: string, @Req() req: Request) {
-    return this.billsService.remove(+id, (req.user as any).email); // ✅ deletedBy del token
+    const user = req.user as any;
+    return this.billsService.remove(+id, user.id, user.email);
   }
 }

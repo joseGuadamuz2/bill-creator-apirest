@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Bill } from './bill.entity';
 import { BillDetail } from './bill-detail.entity';
 import { CreateBillDto } from './dto/create-bill.dto';
 import { ProductsService } from '../products/products.service';
+import { ClientsService } from '../clients/clients.service';
 
 @Injectable()
 export class BillsService {
@@ -16,19 +17,24 @@ export class BillsService {
     private billDetailsRepository: Repository<BillDetail>,
 
     private productsService: ProductsService,
+    private clientsService: ClientsService,
   ) {}
 
-  async create(dto: CreateBillDto, createdBy: string): Promise<Bill> {  // ✅ parámetro agregado
-    const existing = await this.billsRepository.findOneBy({ billNumber: dto.billNumber });
+  async create(dto: CreateBillDto, userId: number, createdBy: string): Promise<Bill> {
+    const existing = await this.billsRepository.findOneBy({ billNumber: dto.billNumber, userId });
     if (existing) {
       throw new ConflictException(`Ya existe una factura con el número ${dto.billNumber}`);
     }
+
+    // Validar que el cliente pertenezca al usuario
+    await this.clientsService.findOne(dto.clientId, userId);
 
     let total = 0;
     const details: BillDetail[] = [];
 
     for (const detailDto of dto.details) {
-      const product = await this.productsService.findOne(detailDto.productId);
+      // Validar que el producto pertenezca al usuario
+      const product = await this.productsService.findOne(detailDto.productId, userId);
       const unitPrice = detailDto.unitPrice ?? Number(product.price);
       const subtotal = unitPrice * detailDto.quantity;
       total += subtotal;
@@ -45,6 +51,7 @@ export class BillsService {
     const bill = this.billsRepository.create({
       billNumber: dto.billNumber,
       clientId: dto.clientId,
+      userId,
       createdBy,
       total,
       details,
@@ -53,24 +60,24 @@ export class BillsService {
     return this.billsRepository.save(bill);
   }
 
-  findAll(): Promise<Bill[]> {
+  findAll(userId: number): Promise<Bill[]> {
     return this.billsRepository.find({
-      where: { isActive: true },
+      where: { isActive: true, userId },
       relations: ['client', 'details', 'details.product'],
     });
   }
 
-  async findOne(id: number): Promise<Bill> {
+  async findOne(id: number, userId: number): Promise<Bill> {
     const bill = await this.billsRepository.findOne({
-      where: { id, isActive: true },
-      relations: ['client', 'details', 'details.product'],
+      where: { id, isActive: true, userId },
+      relations: ['client', 'details', 'details.product', 'user'],
     });
     if (!bill) throw new NotFoundException(`Factura con id ${id} no encontrada`);
     return bill;
   }
 
-  async remove(id: number, deletedBy: string): Promise<void> {
-    const bill = await this.findOne(id);
+  async remove(id: number, userId: number, deletedBy: string): Promise<void> {
+    const bill = await this.findOne(id, userId);
     bill.isActive = false;
     bill.updatedBy = deletedBy;
     await this.billsRepository.save(bill);

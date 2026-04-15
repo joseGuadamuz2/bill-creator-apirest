@@ -12,29 +12,29 @@ export class ProductsService {
     private productsRepository: Repository<Product>,
   ) {}
 
-  create(dto: CreateProductDto): Promise<Product> {
-    const product = this.productsRepository.create(dto);
+  create(dto: CreateProductDto, userId: number, createdBy: string): Promise<Product> {
+    const product = this.productsRepository.create({ ...dto, userId, createdBy });
     return this.productsRepository.save(product);
   }
 
-  findAll(): Promise<Product[]> {
-    return this.productsRepository.findBy({ isActive: true });
+  findAll(userId: number): Promise<Product[]> {
+    return this.productsRepository.findBy({ isActive: true, userId });
   }
 
-  async findOne(id: number): Promise<Product> {
-    const product = await this.productsRepository.findOneBy({ id, isActive: true });
+  async findOne(id: number, userId: number): Promise<Product> {
+    const product = await this.productsRepository.findOneBy({ id, isActive: true, userId });
     if (!product) throw new NotFoundException(`Producto con id ${id} no encontrado`);
     return product;
   }
 
-  async update(id: number, dto: UpdateProductDto): Promise<Product> {
-    const product = await this.findOne(id);
+  async update(id: number, dto: UpdateProductDto, userId: number): Promise<Product> {
+    const product = await this.findOne(id, userId);
     Object.assign(product, dto);
     return this.productsRepository.save(product);
   }
 
-  async remove(id: number, deletedBy: string): Promise<void> {
-    const product = await this.findOne(id);
+  async remove(id: number, userId: number, deletedBy: string): Promise<void> {
+    const product = await this.findOne(id, userId);
     product.isActive = false;
     product.updatedBy = deletedBy;
     await this.productsRepository.save(product);
