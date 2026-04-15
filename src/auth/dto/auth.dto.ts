@@ -15,6 +15,21 @@ export class RegisterDto {
   @IsOptional()
   @IsString()
   name?: string;
+
+  @ApiPropertyOptional({ example: 'Mi Empresa S.A.' })
+  @IsOptional()
+  @IsString()
+  companyName?: string;
+
+  @ApiPropertyOptional({ example: '3-101-123456' })
+  @IsOptional()
+  @IsString()
+  companyId?: string;
+
+  @ApiPropertyOptional({ example: 'data:image/png;base64,...' })
+  @IsOptional()
+  @IsString()
+  logoUrl?: string;
 }
 
 export class LoginDto {

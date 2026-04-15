@@ -25,4 +25,11 @@ export class Client extends BaseEntity {
 
   @Column({ nullable: true })
   address: string;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'userId' })
+  user: User;
+
+  @Column()
+  userId: number;
 }
