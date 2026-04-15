@@ -1,6 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, OneToMany } from 'typeorm';
 import { BaseEntity } from '../common/base.entity';
 import * as bcrypt from 'bcrypt';
+import { Client } from '../clients/client.entity';
+import { Bill } from '../bills/bill.entity';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -15,6 +17,21 @@ export class User extends BaseEntity {
 
   @Column({ nullable: true })
   name: string;
+
+  @Column({ nullable: true })
+  companyName: string;
+
+  @Column({ nullable: true })
+  companyId: string;
+
+  @Column({ nullable: true, type: 'text' })
+  logoUrl: string;
+
+  @OneToMany(() => Client, (client) => client.user)
+  clients: Client[];
+
+  @OneToMany(() => Bill, (bill) => bill.user)
+  bills: Bill[];
 
   @BeforeInsert()
   async hashPassword() {

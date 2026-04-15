@@ -21,7 +21,25 @@ export class PdfService {
       doc.on('error', reject);
 
       // ===== HEADER =====
-      doc.fontSize(20).text('Bill Creator', { align: 'center' });
+      if (bill.user?.logoUrl) {
+        try {
+          const logo = bill.user.logoUrl.startsWith('data:image')
+            ? Buffer.from(bill.user.logoUrl.split(',')[1], 'base64')
+            : bill.user.logoUrl;
+          doc.image(logo, { fit: [120, 120], align: 'center' });
+          doc.moveDown();
+        } catch (err) {
+          // Si la imagen no carga, continuamos sin logo
+        }
+      }
+
+      doc.fontSize(18).text(bill.user?.companyName ?? bill.user?.name ?? 'Facturador', { align: 'center' });
+      if (bill.user?.companyId) {
+        doc.fontSize(10).text(`Cédula jurídica: ${bill.user.companyId}`, { align: 'center' });
+      }
+      if (bill.user?.email) {
+        doc.fontSize(10).text(`Email: ${bill.user.email}`, { align: 'center' });
+      }
       doc.moveDown();
 
       doc.fontSize(12).text(`Factura #${bill.billNumber}`);

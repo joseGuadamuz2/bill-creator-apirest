@@ -6,10 +6,11 @@ import { BillsService } from './bills.service';
 import { BillsController } from './bills.controller';
 import { ProductsModule } from '../products/products.module';
 import { PdfService } from './pdf.service';
+import { Client } from '../clients/client.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Bill, BillDetail]),
+    TypeOrmModule.forFeature([Bill, BillDetail, Client]),
     ProductsModule,
   ],
   controllers: [BillsController],

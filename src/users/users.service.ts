@@ -18,7 +18,7 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { id } });
   }
 
-  async create(email: string, password: string, name?: string): Promise<User> {
+  async create(email: string, password: string, name?: string, companyName?: string, companyId?: string, logoUrl?: string): Promise<User> {
     const existing = await this.findByEmail(email);
     if (existing) {
       throw new ConflictException('El email ya está registrado');
@@ -28,6 +28,9 @@ export class UsersService {
       email,
       password,
       name,
+      companyName,
+      companyId,
+      logoUrl,
       createdBy: email,
     });
 

@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '../common/base.entity';
+import { User } from '../users/users.entity';
 
 @Entity('clients')
 export class Client extends BaseEntity {
@@ -17,4 +18,11 @@ export class Client extends BaseEntity {
 
   @Column({ nullable: true })
   address: string;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'userId' })
+  user: User;
+
+  @Column()
+  userId: number;
 }
