@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 import { ClientsModule } from './clients/clients.module';
 import { ProductsModule } from './products/products.module';
 import { BillsModule } from './bills/bills.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -22,13 +24,15 @@ import { BillsModule } from './bills/bills.module';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true, // code first: crea/actualiza tablas automáticamente
+        synchronize: true,
       }),
       inject: [ConfigService],
     }),
     ClientsModule,
     BillsModule,
     ProductsModule,
+    AuthModule,
+    UsersModule,  // 👈 agregado
   ],
   controllers: [AppController],
   providers: [AppService],

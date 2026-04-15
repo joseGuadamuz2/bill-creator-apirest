@@ -4,8 +4,11 @@ import { Response } from 'express';
 import { BillsService } from './bills.service';
 import { PdfService } from './pdf.service';
 import { CreateBillDto } from './dto/create-bill.dto';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('bills')
+@UseGuards(JwtAuthGuard)
 @Controller('bills')
 export class BillsController {
   constructor(

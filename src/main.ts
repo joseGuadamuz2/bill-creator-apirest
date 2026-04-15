@@ -14,6 +14,15 @@ async function bootstrap() {
     .setTitle('Bill Creator API')
     .setDescription('API REST para gestión de clientes y facturas')
     .setVersion('1.0')
+    .addBearerAuth(          // 👈 habilita el botón "Authorize" con JWT
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Ingresa el token JWT obtenido en POST /auth/login',
+      },
+      'access-token',        // nombre del esquema (debe coincidir con @ApiBearerAuth())
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
