@@ -11,8 +11,7 @@ export class Bill extends BaseEntity {
   id: number;
 
   @Column()
-<<<<<<< HEAD
-  billNumber: string;  // unique por usuario, no global
+  billNumber: string; // único por usuario, no global
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'userId' })
@@ -20,9 +19,6 @@ export class Bill extends BaseEntity {
 
   @Column()
   userId: number;
-=======
-  billNumber: string;
->>>>>>> b567cb105cf15bf0649098b226c92e78159b9cc3
 
   @ManyToOne(() => Client)
   @JoinColumn({ name: 'clientId' })
@@ -30,13 +26,6 @@ export class Bill extends BaseEntity {
 
   @Column()
   clientId: number;
-
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'userId' })
-  user: User;
-
-  @Column()
-  userId: number;
 
   @OneToMany(() => BillDetail, (detail) => detail.bill, { cascade: true })
   details: BillDetail[];

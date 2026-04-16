@@ -7,13 +7,12 @@ import { BillsController } from './bills.controller';
 import { ProductsModule } from '../products/products.module';
 import { ClientsModule } from '../clients/clients.module';
 import { PdfService } from './pdf.service';
-import { Client } from '../clients/client.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Bill, BillDetail, Client]),
+    TypeOrmModule.forFeature([Bill, BillDetail]),
     ProductsModule,
-    ClientsModule,  // 👈 necesario para validar que el cliente sea del usuario
+    ClientsModule,
   ],
   controllers: [BillsController],
   providers: [BillsService, PdfService],

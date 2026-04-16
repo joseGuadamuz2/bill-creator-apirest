@@ -18,7 +18,6 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   name: string;
 
-<<<<<<< HEAD
   // Datos para impresión personalizada en PDF
   @Column({ nullable: true })
   businessName: string;
@@ -31,22 +30,12 @@ export class User extends BaseEntity {
 
   @Column({ nullable: true })
   businessEmail: string;
-=======
-  @Column({ nullable: true })
-  companyName: string;
-
-  @Column({ nullable: true })
-  companyId: string;
-
-  @Column({ nullable: true, type: 'text' })
-  logoUrl: string;
 
   @OneToMany(() => Client, (client) => client.user)
   clients: Client[];
 
   @OneToMany(() => Bill, (bill) => bill.user)
   bills: Bill[];
->>>>>>> b567cb105cf15bf0649098b226c92e78159b9cc3
 
   @BeforeInsert()
   async hashPassword() {
