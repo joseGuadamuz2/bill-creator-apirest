@@ -14,33 +14,9 @@ export class PdfService {
       doc.on('end', () => resolve(Buffer.concat(chunks)));
       doc.on('error', reject);
 
-<<<<<<< HEAD
       // ===== HEADER personalizado por usuario =====
       const businessName = bill.user?.businessName ?? bill.createdBy;
       doc.fontSize(20).text(businessName, { align: 'center' });
-=======
-      // ===== HEADER =====
-      if (bill.user?.logoUrl) {
-        try {
-          const logo = bill.user.logoUrl.startsWith('data:image')
-            ? Buffer.from(bill.user.logoUrl.split(',')[1], 'base64')
-            : bill.user.logoUrl;
-          doc.image(logo, { fit: [120, 120], align: 'center' });
-          doc.moveDown();
-        } catch (err) {
-          // Si la imagen no carga, continuamos sin logo
-        }
-      }
-
-      doc.fontSize(18).text(bill.user?.companyName ?? bill.user?.name ?? 'Facturador', { align: 'center' });
-      if (bill.user?.companyId) {
-        doc.fontSize(10).text(`Cédula jurídica: ${bill.user.companyId}`, { align: 'center' });
-      }
-      if (bill.user?.email) {
-        doc.fontSize(10).text(`Email: ${bill.user.email}`, { align: 'center' });
-      }
-      doc.moveDown();
->>>>>>> b567cb105cf15bf0649098b226c92e78159b9cc3
 
       if (bill.user?.businessAddress) {
         doc.fontSize(10).text(bill.user.businessAddress, { align: 'center' });
